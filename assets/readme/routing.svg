@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
+  <title id="title">Krea2 Edit Prep: how reference images are routed</title>
+  <desc id="desc">With no image, or both boosts at 0, the node does text-to-image with the model unpatched. With one image it makes a single-image edit, moving a lone image_b into the first slot. With both, image is the scene and image_b the subject. Every case returns model, positive and negative for a KSampler.</desc>
+
+  <rect width="1200" height="600" rx="24" fill="#1b1b1f"/>
+
+  <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="56" y="66" fill="#9a9aa2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="2">COMFYUI · KREA 2 IDENTITY EDIT LORA</text>
+    <text x="56" y="120" fill="#e8e6e3" font-size="46" font-weight="700">Krea2 Edit Prep</text>
+    <text x="56" y="160" fill="#9a9aa2" font-size="20">Zero, one or two reference images, routed into a ready model and conditioning.</text>
+  </g>
+
+  <g id="rows" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <g id="no-image" transform="translate(56 196)">
+      <rect width="1088" height="100" rx="14" fill="#232328"/>
+      <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">
+        <rect x="24" y="30" width="170" height="40" rx="20" fill="#2a2a30" stroke="#3d3d46"/>
+        <circle cx="46" cy="50" r="7" fill="none" stroke="#5a5a63" stroke-width="2"/>
+        <text x="62" y="56" fill="#7c7c85">image</text>
+        <rect x="210" y="30" width="170" height="40" rx="20" fill="#2a2a30" stroke="#3d3d46"/>
+        <circle cx="232" cy="50" r="7" fill="none" stroke="#5a5a63" stroke-width="2"/>
+        <text x="248" y="56" fill="#7c7c85">image_b</text>
+      </g>
+      <text x="414" y="44" fill="#e8e6e3" font-size="20" font-weight="600">No image, or both boosts at 0</text>
+      <text x="414" y="72" fill="#9a9aa2" font-size="16">Plain text encoding, model passes through unpatched</text>
+      <text x="884" y="58" fill="#ffa931" font-size="20" font-weight="600">text-to-image</text>
+    </g>
+
+    <g id="one-image" transform="translate(56 312)">
+      <rect width="1088" height="100" rx="14" fill="#232328"/>
+      <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">
+        <rect x="24" y="30" width="170" height="40" rx="20" fill="#2e2e35" stroke="#64b5f6"/>
+        <circle cx="46" cy="50" r="7" fill="#64b5f6"/>
+        <text x="62" y="56" fill="#e8e6e3">image_b</text>
+        <rect x="210" y="30" width="170" height="40" rx="20" fill="#2a2a30" stroke="#3d3d46"/>
+        <circle cx="232" cy="50" r="7" fill="none" stroke="#5a5a63" stroke-width="2"/>
+        <text x="248" y="56" fill="#7c7c85">empty</text>
+      </g>
+      <text x="414" y="44" fill="#e8e6e3" font-size="20" font-weight="600">One image</text>
+      <text x="414" y="72" fill="#9a9aa2" font-size="16">A lone image_b moves into the first slot</text>
+      <text x="884" y="58" fill="#ffa931" font-size="20" font-weight="600">single-image edit</text>
+    </g>
+
+    <g id="two-images" transform="translate(56 428)">
+      <rect width="1088" height="100" rx="14" fill="#232328"/>
+      <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">
+        <rect x="24" y="30" width="170" height="40" rx="20" fill="#2e2e35" stroke="#64b5f6"/>
+        <circle cx="46" cy="50" r="7" fill="#64b5f6"/>
+        <text x="62" y="56" fill="#e8e6e3">image</text>
+        <rect x="210" y="30" width="170" height="40" rx="20" fill="#2e2e35" stroke="#64b5f6"/>
+        <circle cx="232" cy="50" r="7" fill="#64b5f6"/>
+        <text x="248" y="56" fill="#e8e6e3">image_b</text>
+      </g>
+      <text x="414" y="44" fill="#e8e6e3" font-size="20" font-weight="600">Scene + subject</text>
+      <text x="414" y="72" fill="#9a9aa2" font-size="16">Setting from image, identity from image_b</text>
+      <text x="884" y="58" fill="#ffa931" font-size="20" font-weight="600">two-image edit</text>
+    </g>
+  </g>
+
+  <text x="600" y="570" text-anchor="middle" fill="#9a9aa2" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="17">Every case returns <tspan fill="#b39ddb" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">model</tspan> · <tspan fill="#ffa931" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">positive</tspan> · <tspan fill="#ffa931" font-family="ui-monospace, SFMono-Regular, Menlo, monospace">negative</tspan> for your KSampler</text>
+</svg>

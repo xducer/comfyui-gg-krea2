@@ -1,0 +1,9 @@
+[project]
+name = "comfyui-gg-krea2"
+version = "0.1.0"
+description = "Krea2 Edit Prep: zero, one or two reference images for the Krea 2 Identity Edit LoRA, ready for KSampler."
+readme = "README.md"
+dependencies = []
+
+[tool.comfy]
+DisplayName = "GG Krea2"
