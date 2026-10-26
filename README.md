@@ -10,16 +10,17 @@
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
 
-*One prompt and seed for all four: "the person from the second image sitting on the chair in the first image, blue backdrop"; the single-image routes reuse it to show what each route keeps. Krea 2 Turbo with the Identity Edit V2 LoRA, 9 steps, CFG 1, euler / normal, 832 × 1264, default node settings.*
+*One prompt and seed for all four: "the person from the second image sitting on the chair in the first image, blue backdrop"; the single-image routes reuse it to show what each route keeps. Krea 2 Turbo with the Identity Edit V2 and General Edit V2 LoRAs at 0.5 each, 9 steps, CFG 1, euler / normal, 832 × 1264, `rebalance` 0.7, other node settings at their defaults.*
 
 ## Requirements
 
 - [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions don't support the position settings). Install it with `git clone`: the Comfy Registry, which ComfyUI Manager installs from, still has 1.2.3.
-- Krea 2 with one edit LoRA ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
+- Krea 2 with the edit LoRAs ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
-  - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text).
+  - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text);
+  - `krea2_identity_edit_v1_2`, the older identity LoRA, still works.
 
-  Use one per task. Both at 1.0 break the image; about 0.6 each if you combine them.
+  Both V2 LoRAs at 1.0 break the image; krea2edit suggests about 0.6 each when combining them. We use 0.5 each.
 - The Krea 2 text encoder (Qwen3-VL) loaded with type `krea2`, as the Krea2 Edit nodes require.
 
 ## Install
@@ -35,16 +36,18 @@ Restart ComfyUI. The node is under **krea2edit → gg** as **Krea2 Edit Prep (gg
 
 ## Wiring
 
-![A ComfyUI workflow: two Load Image nodes (scene and person) and an Empty Latent Image feed Krea2 Edit Prep along with the model, CLIP, VAE and prompt; its model, positive and negative go to a KSampler, which also takes the same latent, then VAE Decode and Preview Image.](assets/readme/wiring.png)
+![A ComfyUI workflow: a LoRA loader with the Identity Edit V2 and General Edit V2 LoRAs at 0.5 each feeds the model into Krea2 Edit Prep, along with two Load Image nodes (scene and person), an Empty Latent Image, CLIP, VAE and prompt; rebalance is on at 0.7. Its model, positive and negative go to a KSampler, which also takes the same latent, then VAE Decode and Preview Image.](assets/readme/wiring.png)
 
-- **Into the node:** `model` (Krea 2 + edit LoRA and any other LoRAs), `clip`, `vae`, `latent`, `prompt`, and optionally `image`, `image_b` and their masks.
+- **Into the node:** `model` (Krea 2 + edit LoRAs and any other LoRAs), `clip`, `vae`, `latent`, `prompt`, and optionally `image`, `image_b` and their masks.
 - **Out to the KSampler:** `model`, `positive` and `negative`.
 
 Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and sampler stay on the KSampler.
 
 **Negative:** connect the node's `negative` straight to the KSampler; no extra ConditioningZeroOut is needed. With `negative` set to **zero**, the output already is the zeroed positive, and at CFG 1 ComfyUI doesn't evaluate the negative at all.
 
-**Rebalance and other conditioning nodes** go between the node's `positive` and the KSampler, for example `positive → Conditioning Krea2 Rebalance → KSampler.positive` (from [ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance)). To turn it off, bypass it (Ctrl+B). At CFG above 1 with a **grounded** negative, CFG amplifies a rebalance applied only to the positive; try applying it to the negative too.
+**Rebalance:** turn on `rebalance` to apply the default per-layer weights of Conditioning Krea2 Rebalance by nova452 ([ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance)) on every route, to `positive` and to a **grounded** negative, so CFG doesn't amplify it. `rebalance_multiplier` is on the same scale as their node's `multiplier` (which defaults to 4.0) and scales every layer, not just the boosted ones. For other per-layer weights, leave `rebalance` off and put their node between the node's `positive` and the KSampler; with a **grounded** negative at CFG above 1, apply it to `negative` too, or CFG amplifies it.
+
+**Other conditioning nodes** go between the node's `positive` and the KSampler as well.
 
 ## The two image slots
 
@@ -62,6 +65,12 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 | both | Scene + subject edit. |
 
 With two images, "the first image" in the prompt is `image` and "the second image" is `image_b`. With one image, whichever slot it is in, it is the only image the model sees, so call it "the image".
+
+## Text-to-image in an edit workflow
+
+With no image (or both boosts at 0) the same workflow generates from the prompt alone, so you don't need a separate text-to-image workflow. The node applies no source patch then, but the edit LoRAs stay loaded and still change the look.
+
+With both V2 LoRAs at 0.5, `rebalance` on at a `rebalance_multiplier` of 0.7–0.8 gave us the best overall results. Without an edit LoRA, or with Identity Edit V1.2, 1.0 works better.
 
 ## Boosts and masks
 
@@ -128,7 +137,7 @@ Connect only `image` and name what to remove (*remove the chair*). This works at
 In a single-image edit, paint the stubborn area (for example the shirt) into that image's mask and set its boost to 0.6–0.8 to loosen it. Keep it above 0, because 0 leaves the image out. Lowering `grounding_px` (for example to 512) also helps an edit take.
 
 **Text-to-image**
-Disconnect both images, mute or bypass their Load Image nodes, or set both boosts to 0.
+Disconnect both images, mute or bypass their Load Image nodes, or set both boosts to 0. See [Text-to-image in an edit workflow](#text-to-image-in-an-edit-workflow) for the LoRA and Rebalance settings we use.
 
 ## Other settings
 

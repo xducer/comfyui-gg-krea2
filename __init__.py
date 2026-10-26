@@ -1,10 +1,24 @@
 import inspect
 
+import torch
+
 import nodes
 
 FIT_MODES = ["fit", "crop (legacy)"]
 NEGATIVE_MODES = ["zero (CFG 1)", "grounded (CFG > 1)"]
 POSITIONS = ["aligned (trained)", "beside (right of target)", "bag of features"]
+# Default per-layer weights of Conditioning Krea2 Rebalance by nova452
+# (https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance, Apache-2.0).
+REBALANCE_WEIGHTS = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.0]
+
+
+def rebalance_conditioning(conditioning, multiplier):
+    # Krea 2 conditioning concatenates 12 text encoder layer taps; each tap gets its own weight.
+    out = []
+    for cond, extras in conditioning:
+        gains = torch.tensor(REBALANCE_WEIGHTS, dtype=cond.dtype, device=cond.device) * multiplier
+        out.append([(cond.unflatten(-1, (len(REBALANCE_WEIGHTS), -1)) * gains[:, None]).flatten(-2), extras.copy()])
+    return out
 
 
 def krea2edit_node(name):
@@ -46,6 +60,10 @@ class Krea2EditPrep:
                 "image_mask": ("MASK", {"tooltip": "region of image its boost applies to, e.g. a face; "
                                                    "used only when image is the only reference"}),
                 "image_b_mask": ("MASK", {"tooltip": "region of image_b its boost applies to, e.g. the face"}),
+                "rebalance": ("BOOLEAN", {"default": False,
+                                          "tooltip": "applies Conditioning Krea2 Rebalance's default per-layer weights to positive and a grounded negative"}),
+                "rebalance_multiplier": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.05,
+                                                   "tooltip": "scales every layer; about 0.7-0.8 with the V2 LoRAs, 1.0 with V1.2 or no edit LoRA"}),
             },
         }
 
@@ -59,7 +77,7 @@ class Krea2EditPrep:
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,
              negative, image_position, image_b_position,
-             image=None, image_b=None, image_mask=None, image_b_mask=None):
+             image=None, image_b=None, image_mask=None, image_b_mask=None, rebalance=False, rebalance_multiplier=1.0):
         # A boost of 0 leaves the image out. The Krea2 Edit nodes ignore the second slot without
         # the first, so a lone image moves up.
         refs = [(ref, boost, mask, position) for ref, boost, mask, position in
@@ -69,8 +87,12 @@ class Krea2EditPrep:
 
         encoder = krea2edit_node("Krea2EditGroundedEncode")
         positive = encoder.encode(clip, prompt, image=first, image_b=second, grounding_px=grounding_px)[0]
+        if rebalance:
+            positive = rebalance_conditioning(positive, rebalance_multiplier)
         if negative == NEGATIVE_MODES[1]:
             negative = encoder.encode(clip, "", image=first, image_b=second, grounding_px=grounding_px)[0]
+            if rebalance:
+                negative = rebalance_conditioning(negative, rebalance_multiplier)
         else:
             negative = nodes.ConditioningZeroOut().zero_out(positive)[0]
 
