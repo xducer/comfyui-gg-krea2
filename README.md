@@ -68,7 +68,7 @@ With two images, "the first image" in the prompt is `image` and "the second imag
 | Boost | Effect |
 | --- | --- |
 | 1.0 | Neutral (default). |
-| above 1 | Copies that image more closely. Start at 1.3–1.5; far above 2 it can copy too literally (pasted-in lighting, the reference's pose or backdrop, duplicates). |
+| above 1 | Copies that image more closely. With the V2 LoRAs 1.0 is usually enough; try 1.3–1.5 when likeness is weak. Far above 2 it can copy too literally (pasted-in lighting, the reference's pose or backdrop, duplicates). |
 | below 1 | Copies it more loosely, so edits take hold more easily. |
 | 0 | Leaves that image out entirely. |
 
@@ -101,22 +101,24 @@ With `beside`, use an output width that is a multiple of 16 (for example 832 × 
 
 ## Recipes
 
-**Put the person from one photo into a scene**
+**Put the person from one photo into a scene** (Identity Edit V2)
 1. `image` = the scene; `image_b` = the person. Leave the positions at their defaults (scene aligned, person beside).
 2. Prompt: *The man from the second image sitting on the chair in the first image.*
 
-**Put the face from one photo onto the person in another**
+**Put the face from one photo onto the person in another** (Identity Edit V2)
 1. `image` = the photo with the body, pose, clothes and background to keep.
-2. `image_b` = the photo with the face; paint the face (a little past hairline, ears and jaw) and connect its `MASK` to `image_b_mask`.
-3. Leave the defaults. If likeness is weak, raise `image_b_boost` to 1.5–2.5; the face mask keeps the rest of that photo from being copied.
-4. Prompt: *Give the man in the first image the face of the man in the second image. Keep his pose, clothing and the background unchanged.*
+2. `image_b` = the photo with the face. Leave the defaults.
+3. Prompt: *Give the man in the first image the face of the man in the second image. Keep his pose, clothing and the background unchanged.*
 
-The LoRA restages a person; it is not a pixel-exact face swap. If too much of the face photo bleeds in, lower the boost or tighten the mask.
+The LoRA restages a person; it is not a pixel-exact face swap. The hair stays from the first image unless the prompt asks for it. A higher `image_b_boost` with a face mask changes little.
 
-**Edit one picture and keep the face**
-Connect only `image`, paint the face into `image_mask`, set `image_boost` to about 1.3, and describe the edit (*change his shirt to a black suit*).
+**Edit one picture** (General Edit V2)
+Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background stay as they are.
 
-**An edit that won't take**
+**Remove something** (General Edit V2)
+Connect only `image` and name what to remove (*remove the chair*). This works at CFG 1 on Turbo. If the object comes back re-rendered instead of removed, use the Raw model at CFG ~3 with `negative` set to **grounded**.
+
+**An edit that won't take** (General Edit V2)
 In a single-image edit, paint the stubborn area (for example the shirt) into that image's mask and set its boost to 0.6–0.8 to loosen it. Keep it above 0, because 0 leaves the image out.
 
 **Text-to-image**
