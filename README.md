@@ -6,6 +6,10 @@
 
 **Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with the [Krea 2 Identity Edit](https://github.com/lbouaraba/comfyui-krea2edit) LoRA. It runs the Krea2 Edit nodes (grounded encode and source patch) internally, so you don't place them yourself.
 
+![The same scene and person through each route: both images put the person on the chair in the spotlit scene; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
+
+*One prompt and seed for all four: "the person from the second image sitting on the chair in the first image, blue backdrop". Krea 2 Turbo, 9 steps, CFG 1.*
+
 ## Requirements
 
 - [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) installed.
@@ -19,7 +23,11 @@ CLIP, VAE, prompt, latent ──────────────────
 image, image_b, image_mask, image_b_mask ──────┘                         latent ───────────────┘
 ```
 
-Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and sampler stay on the KSampler. Other conditioning nodes, such as a rebalance, go between `positive` and the KSampler.
+Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and sampler stay on the KSampler.
+
+**Negative:** connect the node's `negative` straight to the KSampler; no extra ConditioningZeroOut is needed. With `negative` set to **zero**, the output already is the zeroed positive, and at CFG 1 ComfyUI doesn't evaluate the negative at all.
+
+**Rebalance and other conditioning nodes** go between the node's `positive` and the KSampler, for example `positive → Krea2 Rebalance → KSampler.positive`. To turn the rebalance off, bypass it (Ctrl+B). At CFG 1 that is all you need. At CFG above 1 with a **grounded** negative, a rebalance on the positive only is amplified by the guidance as part of the positive/negative difference; compare it with applying the same rebalance to the negative as well.
 
 ## The two image slots
 
@@ -56,15 +64,21 @@ In the prompt, "the first image" is `image` and "the second image" is `image_b`.
 - With both images, only `image_b_mask` applies; the scene can't be masked. With one image, that image's own mask applies.
 - An empty mask (nothing painted) means the whole image, so leaving `MASK` connected is safe.
 
+At 1.0 the identity LoRA usually reproduces the face well already. When you need a stronger boost, a face mask keeps it on the face, so the rest of the reference (pose, clothing, background) isn't copied too literally:
+
+![A reference photo of a man mid-dance with his face painted as the mask, then three results on the chair: boost 1.0 sits naturally; boost 2.5 without a mask copies the dance pose; boost 2.5 with the face mask sits like the 1.0 result.](assets/readme/boost-mask.jpg)
+
+*Same scene, prompt and seed in all three. Only the boost and the mask change.*
+
 ## Recipes
 
 **Put the face from one photo onto the person in another**
 1. `image` = the photo with the body, pose, clothes and background to keep.
 2. `image_b` = the photo with the face; paint the face (a little past hairline, ears and jaw) and connect its `MASK` to `image_b_mask`.
-3. `image_b_boost` 1.3–1.5, `image_boost` 1.0, `grounding_px` 1024.
+3. `image_b_boost` 1.0, `image_boost` 1.0, `grounding_px` 1024. If likeness is weak, raise `image_b_boost` to 1.5–2.5; the face mask keeps the rest of that photo from being copied.
 4. Prompt: *Give the man in the first image the face of the man in the second image. Keep his pose, clothing and the background unchanged.*
 
-The LoRA restages a person; it is not a pixel-exact face swap. If too much of the face photo bleeds in, lower the boost or tighten the mask; if likeness is weak, try 1.6–2.
+The LoRA restages a person; it is not a pixel-exact face swap. If too much of the face photo bleeds in, lower the boost or tighten the mask.
 
 **Edit one picture and keep the face**
 Connect only `image`, paint the face into `image_mask`, set `image_boost` to about 1.3, and describe the edit (*change his shirt to a black suit*).
