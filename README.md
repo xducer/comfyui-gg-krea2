@@ -10,11 +10,11 @@
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
 
-*One prompt and seed for all four: "the person from the second image sitting on the chair in the first image, blue backdrop". Krea 2 Turbo with the Identity Edit V2 LoRA, 9 steps, CFG 1, euler / normal, 832 × 1264, default node settings.*
+*One prompt and seed for all four: "the person from the second image sitting on the chair in the first image, blue backdrop"; the single-image routes reuse it to show what each route keeps. Krea 2 Turbo with the Identity Edit V2 LoRA, 9 steps, CFG 1, euler / normal, 832 × 1264, default node settings.*
 
 ## Requirements
 
-- [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions ignore the position settings).
+- [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions don't support the position settings).
 - Krea 2 with one edit LoRA ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
   - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text).
@@ -55,7 +55,7 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 
 | What arrives | Result |
 | --- | --- |
-| no image, or both boosts at 0 | Text-to-image: plain text encoding, model unpatched. |
+| no image, or both boosts at 0 | Text-to-image: plain text encoding, no source patch on the model (your LoRAs stay applied). |
 | one image (the other missing or at boost 0) | Single-image edit. A lone `image_b` moves into the first slot. |
 | both | Scene + subject edit. |
 
@@ -91,7 +91,7 @@ At 1.0 the identity LoRA usually reproduces the face well already. When you need
 | beside (right of target) | Placed next to the canvas: the identity still comes through, but the layout pin is gone, so the person can be restaged more freely. |
 | bag of features | Experimental: the image's content without its layout. |
 
-Keep the scene `aligned` so its layout and lighting carry over. For the person, `beside` keeps the likeness without copying the photo's pose and lighting, even at boost 2.5; on `aligned` the V2 identity LoRA tends to copy both. For a single-image edit that should keep the picture's layout, use `image` (aligned).
+Keep the scene `aligned` so its layout and lighting carry over. For the person, `beside` keeps the likeness but copies much less of the photo's pose and lighting, also at higher boosts; on `aligned` the V2 identity LoRA tends to copy both. For a single-image edit that should keep the picture's layout, use `image` (aligned).
 
 ![A reference photo of a man mid-dance with his face painted as the mask, then four results on the chair: aligned at 1.0 copies the dance pose and the photo's hard wall shadow; aligned at 2.5 copies even more; aligned at 2.5 with the face mask looks like the 1.0 result; beside at 1.0 sits naturally under the scene's spotlight.](assets/readme/positions.jpg)
 
@@ -113,17 +113,17 @@ With `beside`, use an output width that is a multiple of 16 (for example 832 × 
 The LoRA restages a person; it is not a pixel-exact face swap. The hair stays from the first image unless the prompt asks for it. A higher `image_b_boost` with a face mask changes little.
 
 **Edit one picture** (General Edit V2)
-Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background stay as they are.
+Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background usually stay as they are.
 
 **Remove something** (General Edit V2)
-Connect only `image` and name what to remove (*remove the chair*). This works at CFG 1 on Turbo. If the object comes back re-rendered instead of removed, use the Raw model at CFG ~3 with `negative` set to **grounded**.
+Connect only `image` and name what to remove (*remove the chair*). This works at CFG 1 on Turbo. If the object comes back re-rendered instead of removed, use Krea 2 Raw (the non-Turbo model) at CFG ~3 with `negative` set to **grounded**.
 
 ![Two General Edit V2 results: the dancing man's white shirt and jeans become a black suit with his face, pose and red backdrop kept; the empty stage with a chair in the spotlight comes back with the chair removed and the light unchanged.](assets/readme/general-edit.jpg)
 
 *Krea 2 Turbo with the General Edit V2 LoRA, 9 steps, CFG 1, euler / normal, default node settings. Prompts: "Change his shirt to a black suit." and "Remove the chair."*
 
 **An edit that won't take** (General Edit V2)
-In a single-image edit, paint the stubborn area (for example the shirt) into that image's mask and set its boost to 0.6–0.8 to loosen it. Keep it above 0, because 0 leaves the image out.
+In a single-image edit, paint the stubborn area (for example the shirt) into that image's mask and set its boost to 0.6–0.8 to loosen it. Keep it above 0, because 0 leaves the image out. Lowering `grounding_px` (for example to 512) also helps an edit take.
 
 **Text-to-image**
 Disconnect both images, mute or bypass their Load Image nodes, or set both boosts to 0.
@@ -132,5 +132,9 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 
 - `negative`: **zero** for CFG 1 (Turbo, the negative isn't evaluated). **grounded** for CFG above 1 (e.g. the Raw model at CFG ~3): an empty prompt on the same images, the trained unconditional. It costs one extra encoder pass.
 - `grounding_px`: caps the longest side of each image shown to the text encoder (smaller images are not enlarged; 0 = native size). Lower follows the instruction more, higher keeps identity better; 1024 suits people.
-- `fit_mode`: keep `fit`; `crop (legacy)` is for older weights, and masks can drift with it.
+- `fit_mode`: keep `fit`; `crop (legacy)` is for older weights, and masks drift more with it.
 - Generate at about 2 MP or less; larger outputs can bleed source content or duplicate subjects.
+
+## License
+
+Apache-2.0, see [LICENSE](LICENSE).

@@ -17,7 +17,7 @@ class Krea2EditPrep:
     def INPUT_TYPES(cls):
         return {
             "required": {
-                "model": ("MODEL", {"tooltip": "Krea 2 with the identity edit LoRA applied"}),
+                "model": ("MODEL", {"tooltip": "Krea 2 with an edit LoRA (identity or general) applied"}),
                 "clip": ("CLIP",),
                 "vae": ("VAE",),
                 "latent": ("LATENT", {"tooltip": "the same latent you feed KSampler.latent_image"}),
@@ -33,9 +33,9 @@ class Krea2EditPrep:
                                               "tooltip": "grounded = empty prompt on the same images, the trained unconditional for CFG > 1"}),
                 "image_position": (POSITIONS, {"default": POSITIONS[0],
                                                "tooltip": "aligned = pinned to the output layout; beside = identity without the layout pin, "
-                                                          "restages more freely; bag of features = experimental"}),
+                                                          "restages more freely, needs a width that is a multiple of 16; bag of features = experimental"}),
                 "image_b_position": (POSITIONS, {"default": POSITIONS[1],
-                                                 "tooltip": "beside keeps the person's identity without copying the photo's pose and lighting; needs a width that is a multiple of 16"}),
+                                                 "tooltip": "beside keeps the person's identity but copies much less of the photo's pose and lighting; needs a width that is a multiple of 16"}),
             },
             "optional": {
                 "image": ("IMAGE", {"tooltip": "scene, or the only reference"}),
@@ -51,7 +51,7 @@ class Krea2EditPrep:
     FUNCTION = "prep"
     CATEGORY = "krea2edit/gg"
     DESCRIPTION = ("Prepares model and conditioning for KSampler from zero, one or two reference images: "
-                   "no image = text-to-image with the model unpatched, one image = single-reference edit, "
+                   "no image = text-to-image without the source patch, one image = single-reference edit, "
                    "two = scene + subject. A boost of 0 leaves that image out.")
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,

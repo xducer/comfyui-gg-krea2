@@ -1,9 +1,13 @@
 [project]
 name = "comfyui-gg-krea2"
 version = "0.1.0"
-description = "Krea2 Edit Prep: zero, one or two reference images for the Krea 2 Identity Edit LoRA, ready for KSampler."
+description = "Add-on node for comfyui-krea2edit: turns zero, one or two reference images into a ready model and conditioning for KSampler, for the Krea 2 Edit V2 LoRAs."
 readme = "README.md"
+license = { file = "LICENSE" }
 dependencies = []
+
+[project.urls]
+Repository = "https://github.com/xducer/comfyui-gg-krea2"
 
 [tool.comfy]
 DisplayName = "GG Krea2"
