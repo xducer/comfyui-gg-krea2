@@ -5,7 +5,7 @@
   <rect width="1200" height="600" rx="24" fill="#1b1b1f"/>
 
   <g id="title-block" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
-    <text x="56" y="66" fill="#9a9aa2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="2">COMFYUI · KREA 2 IDENTITY EDIT LORA</text>
+    <text x="56" y="66" fill="#9a9aa2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15" letter-spacing="2">COMFYUI · KREA 2 EDIT LORAS</text>
     <text x="56" y="120" fill="#e8e6e3" font-size="46" font-weight="700">Krea2 Edit Prep</text>
     <text x="56" y="160" fill="#9a9aa2" font-size="20">Zero, one or two reference images, routed into a ready model and conditioning.</text>
   </g>
