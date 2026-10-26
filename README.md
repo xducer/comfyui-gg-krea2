@@ -4,6 +4,8 @@
 
 # GG Krea2
 
+*An add-on node for [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba. Not part of that pack; install it first.*
+
 **Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It runs the Krea2 Edit nodes (grounded encode and source patch) internally, so you don't place them yourself.
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
@@ -27,7 +29,7 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/xducer/comfyui-gg-krea2.git
 ```
 
-Restart ComfyUI. The node is under **krea2edit** as **Krea2 Edit Prep (gg)**.
+Restart ComfyUI. The node is under **krea2edit → gg** as **Krea2 Edit Prep (gg)**.
 
 ## Wiring
 
