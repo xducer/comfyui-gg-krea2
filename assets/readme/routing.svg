@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="600" viewBox="0 0 1200 600" role="img" aria-labelledby="title desc">
   <title id="title">Krea2 Edit Prep: how reference images are routed</title>
-  <desc id="desc">With no image, or both boosts at 0, the node does text-to-image with the model unpatched. With one image it makes a single-image edit, moving a lone image_b into the first slot. With both, image is the scene and image_b the subject. Every case returns model, positive and negative for a KSampler.</desc>
+  <desc id="desc">With no image, or both boosts at 0, the node does text-to-image with the model unpatched. With one image, in either slot (the other empty or at boost 0), it makes a single-image edit; a lone image_b moves into the first slot. With both, image is the scene and image_b the subject. Every case returns model, positive and negative for a KSampler.</desc>
 
   <rect width="1200" height="600" rx="24" fill="#1b1b1f"/>
 
@@ -31,13 +31,13 @@
       <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">
         <rect x="24" y="30" width="170" height="40" rx="20" fill="#2e2e35" stroke="#64b5f6"/>
         <circle cx="46" cy="50" r="7" fill="#64b5f6"/>
-        <text x="62" y="56" fill="#e8e6e3">image_b</text>
+        <text x="62" y="56" fill="#e8e6e3">either one</text>
         <rect x="210" y="30" width="170" height="40" rx="20" fill="#2a2a30" stroke="#3d3d46"/>
         <circle cx="232" cy="50" r="7" fill="none" stroke="#5a5a63" stroke-width="2"/>
-        <text x="248" y="56" fill="#7c7c85">empty</text>
+        <text x="248" y="56" fill="#7c7c85">empty or 0</text>
       </g>
-      <text x="414" y="44" fill="#e8e6e3" font-size="20" font-weight="600">One image</text>
-      <text x="414" y="72" fill="#9a9aa2" font-size="16">A lone image_b moves into the first slot</text>
+      <text x="414" y="44" fill="#e8e6e3" font-size="20" font-weight="600">One image, in either slot</text>
+      <text x="414" y="72" fill="#9a9aa2" font-size="16">Always used as the first reference; a lone image_b moves up</text>
       <text x="884" y="58" fill="#ffa931" font-size="20" font-weight="600">single-image edit</text>
     </g>
 
