@@ -10,4 +10,5 @@ dependencies = []
 Repository = "https://github.com/xducer/comfyui-gg-krea2"
 
 [tool.comfy]
+PublisherId = "xducer"
 DisplayName = "GG Krea2"

@@ -14,7 +14,7 @@
 
 ## Requirements
 
-- [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions don't support the position settings).
+- [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions don't support the position settings). Install it with `git clone`: the Comfy Registry, which ComfyUI Manager installs from, still has 1.2.3.
 - Krea 2 with one edit LoRA ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
   - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text).
@@ -23,6 +23,8 @@
 - The Krea 2 text encoder (Qwen3-VL) loaded with type `krea2`, as the Krea2 Edit nodes require.
 
 ## Install
+
+Search for **GG Krea2** in ComfyUI Manager, or clone it:
 
 ```sh
 cd ComfyUI/custom_nodes
