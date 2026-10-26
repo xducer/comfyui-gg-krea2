@@ -17,11 +17,10 @@
 
 ## Wiring
 
-```
-Krea 2 + identity LoRA (+ other LoRAs) ─ model ┐
-CLIP, VAE, prompt, latent ─────────────────────┤ Krea2 Edit Prep ─ model / positive / negative ─ KSampler
-image, image_b, image_mask, image_b_mask ──────┘                         latent ───────────────┘
-```
+![A ComfyUI workflow: two Load Image nodes (scene and person) and an Empty Latent Image feed Krea2 Edit Prep along with the model, CLIP, VAE and prompt; its model, positive and negative go to a KSampler, which also takes the same latent, then VAE Decode and Preview Image.](assets/readme/wiring.png)
+
+- **Into the node:** `model` (Krea 2 + identity LoRA and any other LoRAs), `clip`, `vae`, `latent`, `prompt`, and optionally `image`, `image_b` and their masks.
+- **Out to the KSampler:** `model`, `positive` and `negative`.
 
 Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and sampler stay on the KSampler.
 
