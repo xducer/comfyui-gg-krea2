@@ -1,3 +1,5 @@
+import inspect
+
 import nodes
 
 FIT_MODES = ["fit", "crop (legacy)"]
@@ -8,7 +10,8 @@ POSITIONS = ["aligned (trained)", "beside (right of target)", "bag of features"]
 def krea2edit_node(name):
     node = nodes.NODE_CLASS_MAPPINGS.get(name)
     if node is None:
-        raise RuntimeError(f"Krea2 Edit Prep needs the comfyui-krea2edit pack ({name} is not installed).")
+        raise RuntimeError(f"Krea2 Edit Prep needs the comfyui-krea2edit pack ({name} is not installed). Install "
+                           "version 2.0.0 or newer with git clone from https://github.com/lbouaraba/comfyui-krea2edit")
     return node()
 
 
@@ -52,7 +55,7 @@ class Krea2EditPrep:
     CATEGORY = "krea2edit/gg"
     DESCRIPTION = ("Prepares model and conditioning for KSampler from zero, one or two reference images: "
                    "no image = text-to-image without the source patch, one image = single-reference edit, "
-                   "two = scene + subject. A boost of 0 leaves that image out.")
+                   "two = scene + subject. A boost of 0 leaves that image out. Needs comfyui-krea2edit 2.0.0 or newer.")
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,
              negative, image_position, image_b_position,
@@ -84,10 +87,16 @@ class Krea2EditPrep:
             mask = None
         # The image path replaces source_latent; one batch item keeps its normalization from failing on batches.
         source = {"samples": latent["samples"][:1]}
-        model = krea2edit_node("Krea2EditModelPatch").patch(
+        patch = krea2edit_node("Krea2EditModelPatch")
+        position, position_a = refs[-1][3], refs[0][3]
+        # Versions before 2.0.0 accept and drop unknown inputs, so the positions would be silently ignored.
+        if (position, position_a) != (POSITIONS[0], POSITIONS[0]) and "ref_position" not in inspect.signature(patch.patch).parameters:
+            raise RuntimeError("Krea2 Edit Prep's position settings need comfyui-krea2edit 2.0.0 or newer. Update it with "
+                               "git pull (ComfyUI Manager still installs 1.2.3), or set both positions to aligned.")
+        model = patch.patch(
             model, source, vae=vae, source_image=first, source_image_b=second, target_latent=latent,
             fit_mode=fit_mode, ref_boost=ref_boost, ref_boost_a=ref_boost_a, ref_boost_mask=mask,
-            ref_position=refs[-1][3], ref_position_a=refs[0][3])[0]
+            ref_position=position, ref_position_a=position_a)[0]
         return (model, positive, negative)
 
 
