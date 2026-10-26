@@ -118,6 +118,10 @@ Connect only `image` and describe the edit (*change his shirt to a black suit*).
 **Remove something** (General Edit V2)
 Connect only `image` and name what to remove (*remove the chair*). This works at CFG 1 on Turbo. If the object comes back re-rendered instead of removed, use the Raw model at CFG ~3 with `negative` set to **grounded**.
 
+![Two General Edit V2 results: the dancing man's white shirt and jeans become a black suit with his face, pose and red backdrop kept; the empty stage with a chair in the spotlight comes back with the chair removed and the light unchanged.](assets/readme/general-edit.jpg)
+
+*Krea 2 Turbo with the General Edit V2 LoRA, 9 steps, CFG 1, euler / normal, default node settings. Prompts: "Change his shirt to a black suit." and "Remove the chair."*
+
 **An edit that won't take** (General Edit V2)
 In a single-image edit, paint the stubborn area (for example the shirt) into that image's mask and set its boost to 0.6–0.8 to loosen it. Keep it above 0, because 0 leaves the image out.
 
