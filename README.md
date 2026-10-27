@@ -18,7 +18,7 @@
 - Krea 2 with the edit LoRAs ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
   - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text);
-  - `krea2_identity_edit_v1_2`, the older identity LoRA, still works.
+  - `krea2_identity_edit_v1_2`, the older Identity Edit V1.2 LoRA, also works, for edits and text-to-image.
 
   Both V2 LoRAs at 1.0 break the image; krea2edit suggests about 0.6 each when combining them. We use 0.5 each.
 - The Krea 2 text encoder (Qwen3-VL) loaded with type `krea2`, as the Krea2 Edit nodes require.

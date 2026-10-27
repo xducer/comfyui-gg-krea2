@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-gg-krea2"
-version = "0.2.0"
-description = "Requires comfyui-krea2edit 2.0.0+ (install it with git clone; the registry has 1.2.3). Add-on node that turns zero, one or two reference images into a ready model and conditioning for KSampler, for the Krea 2 Edit V2 LoRAs."
+version = "0.2.1"
+description = "Requires comfyui-krea2edit 2.0.0+ (install it with git clone; the registry has 1.2.3). Add-on node that turns zero, one or two reference images into a ready model and conditioning for KSampler, for the Krea 2 Edit LoRAs (V2, and the Identity Edit V1.2 LoRA)."
 readme = "README.md"
 license = { file = "LICENSE" }
 dependencies = []

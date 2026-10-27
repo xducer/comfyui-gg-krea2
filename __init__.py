@@ -63,7 +63,7 @@ class Krea2EditPrep:
                 "rebalance": ("BOOLEAN", {"default": False,
                                           "tooltip": "applies Conditioning Krea2 Rebalance's default per-layer weights to positive and a grounded negative"}),
                 "rebalance_multiplier": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.05,
-                                                   "tooltip": "scales every layer; about 0.7-0.8 with the V2 LoRAs, 1.0 with V1.2 or no edit LoRA"}),
+                                                   "tooltip": "scales every layer; about 0.7-0.8 with the V2 LoRAs, 1.0 with the V1.2 LoRA or no edit LoRA"}),
             },
         }
 
