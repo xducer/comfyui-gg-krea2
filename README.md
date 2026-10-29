@@ -148,4 +148,8 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 
 ## License
 
-Apache-2.0, see [LICENSE](LICENSE).
+GPL-3.0, see [LICENSE](LICENSE). Versions up to 0.2.1 were Apache-2.0.
+
+The Rebalance weights are from [ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance) by nova452 (Apache-2.0, see [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)).
+
+This pack contains no model weights. Krea 2 and the edit LoRAs have their own licenses; check them before commercial use.
