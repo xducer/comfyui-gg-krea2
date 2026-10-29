@@ -62,7 +62,7 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 
 | What arrives | Result |
 | --- | --- |
-| no image, or both boosts at 0 | Text-to-image: plain text encoding, no source patch on the model (your LoRAs stay applied). |
+| no image, or both boosts at 0 | Text-to-image: plain text encoding, the model left unpatched (your LoRAs stay applied). |
 | one image (the other missing or at boost 0) | Single-image edit. A lone `image_b` moves into the first slot. |
 | both | Scene + subject edit. |
 
@@ -70,7 +70,7 @@ With two images, "the first image" in the prompt is `image` and "the second imag
 
 ## Text-to-image in an edit workflow
 
-With no image (or both boosts at 0) the same workflow generates from the prompt alone, so you don't need a separate text-to-image workflow. The node applies no source patch then, but the edit LoRAs stay loaded and still change the look.
+With no image (or both boosts at 0) the same workflow generates from the prompt alone, so you don't need a separate text-to-image workflow. The node leaves the model unpatched then, but the edit LoRAs stay loaded and still change the look.
 
 With both V2 LoRAs at 0.5, `rebalance` on at a `rebalance_multiplier` of 0.7–0.8 gave us the best overall results. Without an edit LoRA, or with Identity Edit V1.2, 1.0 works better.
 
@@ -112,21 +112,21 @@ Keep the scene `aligned` so its layout and lighting carry over. For the person, 
 
 *Same scene, prompt, seed and sampler in all four; `image` stays aligned at 1.0. Only `image_b`'s position, boost and mask change.*
 
-## Grounding and source
+## Grounding and pixels
 
 Each image reaches the model in two ways; `image_use` and `image_b_use` choose which.
 
 | Use | What it carries |
 | --- | --- |
-| grounding + source (default) | Both. |
-| grounding only | The text encoder sees the image: objects, outfits, scenes and styles, by meaning. Its layout isn't copied, and the image adds no source tokens, so it is also faster. |
-| source only | Its pixels go into the model, but the prompt isn't grounded on it. With the V2 LoRAs a face carries without the photo's clothes and background, and a scene keeps its layout. With the Identity Edit V1.2 LoRA it is weak; use **grounding + source** there. |
+| grounding + pixels (default) | Both. |
+| grounding only | The text encoder sees the image: objects, outfits, scenes and styles, by meaning. Its layout isn't copied, and the image itself doesn't go into the model, so it is also faster. |
+| pixels only | The image itself goes into the model, but the prompt isn't grounded on it. With the V2 LoRAs a face carries without the photo's clothes and background, and a scene keeps its layout. With the Identity Edit V1.2 LoRA it is weak; use **grounding + pixels** there. |
 
-Boost, mask and position apply only to images used as source. If no image is used as source, the model gets no source patch.
+Boost, mask and position apply only to images whose pixels are used. If no image's pixels are used, the model is left unpatched.
 
-An `aligned` face photo used as source brings its framing and background along; `beside` (the `image_b` default) stops that.
+An `aligned` face photo whose pixels are used brings its framing and background along; `beside` (the `image_b` default) stops that.
 
-![Three generated inputs (a fluffy white sofa in a crystal landscape, a white shirt and tie with jeans cropped below the chin, and a grey-haired man's face), then three results: scene + face keeps the landscape and puts the grey-haired man in his own dark jacket on the sofa; scene + the stitched outfit and face keeps the landscape and dresses him in the white shirt and tie; the stitched outfit and scene as grounding only with the face as source only restages the sofa among crystals, with the grey-haired man in the shirt and tie.](assets/readme/grounding.jpg)
+![Three generated inputs (a fluffy white sofa in a crystal landscape, a white shirt and tie with jeans cropped below the chin, and a grey-haired man's face), then three results: scene + face keeps the landscape and puts the grey-haired man in his own dark jacket on the sofa; scene + the stitched outfit and face keeps the landscape and dresses him in the white shirt and tie; the stitched outfit and scene as grounding only with the face as pixels only restages the sofa among crystals, with the grey-haired man in the shirt and tie.](assets/readme/grounding.jpg)
 
 *Prompt "a man sitting on the fluffy white sofa", same seed for all three. Krea 2 Turbo with the Identity Edit V2 and General Edit V2 LoRAs at 0.5 each, 9 steps, CFG 1, euler / normal, 1248 × 832, `rebalance` 0.7. The face is used as `beside` in all three.*
 
@@ -145,10 +145,10 @@ The LoRA restages a person; it is not a pixel-exact face swap. The hair stays fr
 
 **Combine an outfit, a scene and a face**
 1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**. Crop the outfit photo below the chin: a face in it competes with the face you want, and its expression comes along too.
-2. `image_b` = the face photo, with `image_b_use` on **source only** and its position on `beside`.
+2. `image_b` = the face photo, with `image_b_use` on **pixels only** and its position on `beside`.
 3. Prompt what should happen, e.g. *a lady sitting on the sofa holding a coffee cup*.
 
-The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the (cropped) outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a source-only image is weaker; **grounding + source** for the face helps the likeness but also brings that photo's clothes.
+The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the (cropped) outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a pixels-only image is weaker; **grounding + pixels** for the face helps the likeness but also brings that photo's clothes.
 
 **Edit one picture** (General Edit V2)
 Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background usually stay as they are.
@@ -171,12 +171,12 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 - `negative`: **zero** for CFG 1 (Turbo, the negative isn't evaluated). **grounded** for CFG above 1 (e.g. the Raw model at CFG ~3): an empty prompt on the same images, the trained unconditional. It costs one extra encoder pass.
 - `grounding_px`: caps the longest side of each image shown to the text encoder (smaller images are not enlarged; 0 = native size). Lower follows the instruction more, higher keeps identity better; 1024 suits people.
 - `fit_mode`: keep `fit`; `crop (legacy)` is for older weights, and masks drift more with it.
-- Generate at about 2 MP or less; larger outputs can bleed source content or duplicate subjects.
+- Generate at about 2 MP or less; larger outputs can bleed content from the images or duplicate subjects.
 
 ## What's new
 
 **0.3.1 (unreleased)**
-- New `image_use` and `image_b_use`: send an image to the grounding only, the source only, or both. One image can carry an outfit or scene by meaning while the other carries a face.
+- New `image_use` and `image_b_use`: use an image for its grounding only, its pixels only, or both. One image can carry an outfit or scene by meaning while the other carries a face.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16.
 - The node moved to **krea2 → gg** in the node menu. Saved workflows are unaffected.
 - A built-in quick reference in the node's help panel.

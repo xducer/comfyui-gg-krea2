@@ -7,7 +7,7 @@ from . import engine
 FIT_MODES = ["fit", "crop (legacy)"]
 NEGATIVE_MODES = ["zero (CFG 1)", "grounded (CFG > 1)"]
 POSITIONS = ["aligned (trained)", "beside (right of target)", "bag of features"]
-USES = ["grounding + source", "grounding only", "source only"]
+USES = ["grounding + pixels", "grounding only", "pixels only"]
 # Default per-layer weights of Conditioning Krea2 Rebalance by nova452
 # (https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance, Apache-2.0).
 REBALANCE_WEIGHTS = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.0]
@@ -59,7 +59,7 @@ class Krea2EditPrep:
                                                    "tooltip": "scales every layer; about 0.7-0.8 with the V2 LoRAs, 1.0 with the V1.2 LoRA or no edit LoRA"}),
                 "image_use": (USES, {"default": USES[0],
                                      "tooltip": "grounding = the text encoder sees the image (objects, outfit, scene, by meaning); "
-                                                "source = its pixels go into the model (faces, layout when aligned)"}),
+                                                "pixels = the image itself goes into the model (faces, layout when aligned)"}),
                 "image_b_use": (USES, {"default": USES[0], "tooltip": "the same choice for image_b"}),
             },
         }
@@ -69,7 +69,7 @@ class Krea2EditPrep:
     FUNCTION = "prep"
     CATEGORY = "krea2/gg"
     DESCRIPTION = ("Prepares model and conditioning for KSampler from zero, one or two reference images: "
-                   "no image = text-to-image without the source patch, one image = single-reference edit, "
+                   "no image = plain text-to-image, one image = single-reference edit, "
                    "two = scene + subject. A boost of 0 leaves that image out.")
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,
