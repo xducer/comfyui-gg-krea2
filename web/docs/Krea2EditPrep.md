@@ -8,19 +8,19 @@ Turns zero, one or two images into `model`, `positive` and `negative` for a KSam
 | --- | --- | --- | --- |
 | Text-to-image | – | – | defaults |
 | Edit one picture | the picture | – | describe the edit |
-| Put a person into a scene | scene | person | defaults |
-| Keep the scene, take outfit and face from two photos | scene | outfit and face photos stitched side by side | defaults; crop the outfit photo below the chin |
-| Restage: scene design, outfit and face | outfit and scene photos stitched, **grounding only** | face, **pixels only** | V2 LoRAs |
+| Put a person into a scene | scene | person (a body shot, not a tight headshot) | defaults |
+| Keep the scene, take outfit and face from two photos | scene | outfit and face photos stitched side by side | defaults; crop the outfit photo below the chin; more reliable with V1.2 |
+| Restage: scene design, outfit and face | outfit and scene photos stitched, **grounding only** | face, **pixels only** | V2 LoRAs; outfit photo cropped, plain background |
 | Keep a design or style, restage freely | the image, **grounding only** | – | |
 
 ## Controls
 
 - **boost**: 1.0 neutral, above 1 copies that image more closely, below 1 more loosely, 0 leaves it out.
 - **mask**: limits the boost to the painted area; not an inpainting mask. With two images only `image_b_mask` applies.
-- **position**: `aligned` keeps the image's layout (scenes); `beside` keeps a likeness but restages it (people); `bag of features` is experimental.
+- **position**: `aligned` keeps the image's layout (scenes); `beside` keeps a likeness but restages it (people); `bag of features` is experimental and tends to paste face photos in.
 - **use**: *grounding* lets the text encoder read the image (objects, outfits, scenes; layout free, faster); *pixels* puts the image itself in the model (faces; the layout when aligned). *Pixels only* needs the V2 LoRAs.
 - **grounding_px**: lower follows the prompt more, higher keeps identity; 1024 suits people.
-- **negative**: *zero* at CFG 1 (Turbo); *grounded* at CFG above 1 (Raw).
+- **negative**: *zero* at CFG 1 (Turbo); *grounded* at CFG above 1 (Raw). Raw at CFG ~3 follows the prompt more closely when a reference's pose competes with it.
 - **rebalance**: per-layer weights; multiplier about 0.7–0.8 with the V2 LoRAs, 1.0 with V1.2 or no edit LoRA.
 - **fit_mode**: keep `fit`.
 

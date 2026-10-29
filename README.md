@@ -104,7 +104,7 @@ At 1.0 the identity LoRA usually reproduces the face well already. When you need
 | --- | --- |
 | aligned (trained) | Pinned to the output layout, as the LoRAs were trained. |
 | beside (right of target) | Placed next to the canvas: the identity still comes through, but the layout pin is gone, so the person can be restaged more freely. |
-| bag of features | Experimental: the image's content without its layout. |
+| bag of features | Experimental: the image's content without its layout. On a face photo it tends to paste the photo in. |
 
 Keep the scene `aligned` so its layout and lighting carry over. For the person, `beside` keeps the likeness but copies much less of the photo's pose and lighting, also at higher boosts; on `aligned` the V2 identity LoRA tends to copy both. For a single-image edit that should keep the picture's layout, use `image` (aligned).
 
@@ -136,6 +136,8 @@ An `aligned` face photo whose pixels are used brings its framing and background 
 1. `image` = the scene; `image_b` = the person. Leave the positions at their defaults (scene aligned, person beside).
 2. Prompt: *The man from the second image sitting on the chair in the first image.*
 
+Use a photo that shows the person's body. A tight headshot can come out pasted in as a portrait, especially in a mostly empty scene.
+
 **Put the face from one photo onto the person in another** (Identity Edit V2)
 1. `image` = the photo with the body, pose, clothes and background to keep.
 2. `image_b` = the photo with the face. Leave the defaults.
@@ -144,11 +146,11 @@ An `aligned` face photo whose pixels are used brings its framing and background 
 The LoRA restages a person; it is not a pixel-exact face swap. The hair stays from the first image unless the prompt asks for it. A higher `image_b_boost` with a face mask changes little.
 
 **Combine an outfit, a scene and a face**
-1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**. Crop the outfit photo below the chin: a face in it competes with the face you want, and its expression comes along too.
+1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**. Crop the outfit photo below the chin: a face in it competes with the face you want, and its expression comes along too. Its background and pose come along as well, so a plain background and the pose you want work best.
 2. `image_b` = the face photo, with `image_b_use` on **pixels only** and its position on `beside`.
 3. Prompt what should happen, e.g. *a lady sitting on the sofa holding a coffee cup*.
 
-The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the (cropped) outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a pixels-only image is weaker; **grounding + pixels** for the face helps the likeness but also brings that photo's clothes.
+The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the (cropped) outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a pixels-only image is weaker; **grounding + pixels** for the face helps the likeness but also brings that photo's clothes. The stitched version is more reliable with V1.2: with the V2 LoRAs the two stitched photos sometimes come out side by side. At CFG 1 the outfit photo's pose can win over the prompt; Krea 2 Raw at CFG ~3 with `negative` on **grounded** follows the prompt more closely.
 
 **Edit one picture** (General Edit V2)
 Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background usually stay as they are.
