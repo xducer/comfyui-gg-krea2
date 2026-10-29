@@ -70,6 +70,8 @@ With no image (or both boosts at 0) the same workflow generates from the prompt 
 
 With both V2 LoRAs at 0.5, `rebalance` on at a `rebalance_multiplier` of 0.7–0.8 gave us the best overall results. Without an edit LoRA, or with Identity Edit V1.2, 1.0 works better.
 
+The edit LoRAs aren't needed without images, and they change the look. The V2 pair adds skin texture that grows with strength (deeper wrinkles on older faces, about twice as much at 0.5 each) and can change faces; at 0.25 each it stays close to plain Krea 2. Identity Edit V1.2 adds little texture but makes images darker and moodier. Mute them, or lower the V2 pair, for plain Krea 2; or leave them on to keep one workflow for everything.
+
 ## Boosts and masks
 
 **A boost sets how closely the result copies that image.**
@@ -114,11 +116,11 @@ Each image reaches the model in two ways; `image_use` and `image_b_use` choose w
 | --- | --- |
 | grounding + source (default) | Both. |
 | grounding only | The text encoder sees the image: objects, outfits, scenes and styles, by meaning. Its layout isn't copied, and the image adds no source tokens, so it is also faster. |
-| source only | Its pixels go into the model: a person's face carries strongly, and with `aligned` its layout and background too. The prompt isn't grounded on it. |
+| source only | Its pixels go into the model, but the prompt isn't grounded on it. With the V2 LoRAs a face carries without the photo's clothes and background, and a scene keeps its layout. With the Identity Edit V1.2 LoRA it is weak; use **grounding + source** there. |
 
 Boost, mask and position apply only to images used as source. If no image is used as source, the model gets no source patch.
 
-A face photo used as source only can bring its background along; `beside` (the `image_b` default) stops that.
+An `aligned` face photo used as source brings its framing and background along; `beside` (the `image_b` default) stops that.
 
 ## Recipes
 
