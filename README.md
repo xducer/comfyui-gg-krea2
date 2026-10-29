@@ -122,6 +122,10 @@ Boost, mask and position apply only to images used as source. If no image is use
 
 An `aligned` face photo used as source brings its framing and background along; `beside` (the `image_b` default) stops that.
 
+![Three generated inputs (a fluffy white sofa in a crystal landscape, a white shirt and tie with jeans cropped below the chin, and a grey-haired man's face), then three results: scene + face keeps the landscape and puts the grey-haired man in his own dark jacket on the sofa; scene + the stitched outfit and face keeps the landscape and dresses him in the white shirt and tie; the stitched outfit and scene as grounding only with the face as source only restages the sofa among crystals, with the grey-haired man in the shirt and tie.](assets/readme/grounding.jpg)
+
+*Prompt "a man sitting on the fluffy white sofa", same seed for all three. Krea 2 Turbo with the Identity Edit V2 and General Edit V2 LoRAs at 0.5 each, 9 steps, CFG 1, euler / normal, 1248 × 832, `rebalance` 0.7. The face is used as `beside` in all three.*
+
 ## Recipes
 
 **Put the person from one photo into a scene** (Identity Edit V2)
@@ -136,11 +140,11 @@ An `aligned` face photo used as source brings its framing and background along; 
 The LoRA restages a person; it is not a pixel-exact face swap. The hair stays from the first image unless the prompt asks for it. A higher `image_b_boost` with a face mask changes little.
 
 **Combine an outfit, a scene and a face**
-1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**.
+1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**. Crop the outfit photo below the chin: a face in it competes with the face you want, and its expression comes along too.
 2. `image_b` = the face photo, with `image_b_use` on **source only** and its position on `beside`.
 3. Prompt what should happen, e.g. *a lady sitting on the sofa holding a coffee cup*.
 
-The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a source-only image is weaker; **grounding + source** for the face helps the likeness but also brings that photo's clothes.
+The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the (cropped) outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a source-only image is weaker; **grounding + source** for the face helps the likeness but also brings that photo's clothes.
 
 **Edit one picture** (General Edit V2)
 Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background usually stay as they are.
