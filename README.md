@@ -142,6 +142,18 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 - `fit_mode`: keep `fit`; `crop (legacy)` is for older weights, and masks drift more with it.
 - Generate at about 2 MP or less; larger outputs can bleed source content or duplicate subjects.
 
+## What's new
+
+**0.3.1 (unreleased)**
+- Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16.
+- The node moved to **krea2 → gg** in the node menu. Saved workflows are unaffected.
+
+**0.3.0**
+- comfyui-krea2edit is no longer needed: its edit engine is included. Saved workflows keep working.
+- License changed to GPL-3.0.
+
+Earlier versions: see [CHANGELOG.md](CHANGELOG.md).
+
 ## License
 
 GPL-3.0, see [LICENSE](LICENSE). Versions up to 0.2.1 were Apache-2.0.
