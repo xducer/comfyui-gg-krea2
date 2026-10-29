@@ -62,7 +62,7 @@ class Krea2EditPrep:
     RETURN_TYPES = ("MODEL", "CONDITIONING", "CONDITIONING")
     RETURN_NAMES = ("model", "positive", "negative")
     FUNCTION = "prep"
-    CATEGORY = "krea2edit/gg"
+    CATEGORY = "krea2/gg"
     DESCRIPTION = ("Prepares model and conditioning for KSampler from zero, one or two reference images: "
                    "no image = text-to-image without the source patch, one image = single-reference edit, "
                    "two = scene + subject. A boost of 0 leaves that image out.")

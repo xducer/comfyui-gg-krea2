@@ -4,9 +4,7 @@
 
 # GG Krea2
 
-*Includes the edit engine of [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba, so that pack isn't needed.*
-
-**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It does the grounded encode and source patch of the Krea2 Edit nodes internally, so you don't place them yourself.
+**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It grounds the prompt on the images and adds them to the model as references itself, so no other edit nodes are needed.
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
 
@@ -14,13 +12,14 @@
 
 ## Requirements
 
-- Krea 2 with the edit LoRAs ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
+- ComfyUI with Krea 2 support, the Krea 2 model and its VAE.
+- The Krea 2 text encoder (Qwen3-VL, with its vision tower) loaded with type `krea2`.
+- For edits, an edit LoRA ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use (text-to-image works without one):
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
   - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text);
   - `krea2_identity_edit_v1_2`, the older Identity Edit V1.2 LoRA, also works, for edits and text-to-image.
 
-  Both V2 LoRAs at 1.0 break the image; krea2edit suggests about 0.6 each when combining them. We use 0.5 each.
-- The Krea 2 text encoder (Qwen3-VL, with its vision tower) loaded with type `krea2`.
+  Both V2 LoRAs at full strength cause severe artifacts; we use 0.5 each.
 
 ## Install
 
@@ -31,7 +30,7 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/xducer/comfyui-gg-krea2.git
 ```
 
-Restart ComfyUI. The node is under **krea2edit → gg** as **Krea2 Edit Prep (gg)**.
+Restart ComfyUI. The node is under **krea2 → gg** as **Krea2 Edit Prep (gg)**.
 
 ## Wiring
 
@@ -44,7 +43,7 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 
 **Negative:** connect the node's `negative` straight to the KSampler; no extra ConditioningZeroOut is needed. With `negative` set to **zero**, the output already is the zeroed positive, and at CFG 1 ComfyUI doesn't evaluate the negative at all.
 
-**Rebalance:** turn on `rebalance` to apply the default per-layer weights of Conditioning Krea2 Rebalance by nova452 ([ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance)) on every route, to `positive` and to a **grounded** negative, so CFG doesn't amplify it. `rebalance_multiplier` is on the same scale as their node's `multiplier` (which defaults to 4.0) and scales every layer, not just the boosted ones. For other per-layer weights, leave `rebalance` off and put their node between the node's `positive` and the KSampler; with a **grounded** negative at CFG above 1, apply it to `negative` too, or CFG amplifies it.
+**Rebalance:** turn on `rebalance` to apply the default per-layer weights of Conditioning Krea2 Rebalance by nova452 ([Rebalance-Pack](https://github.com/nova452/Rebalance-Pack)) on every route, to `positive` and to a **grounded** negative, so CFG doesn't amplify it. `rebalance_multiplier` is on the same scale as their node's `multiplier` (which defaults to 4.0) and scales every layer, not just the boosted ones. For other per-layer weights, leave `rebalance` off and put their node between the node's `positive` and the KSampler; with a **grounded** negative at CFG above 1, apply it to `negative` too, or CFG amplifies it.
 
 **Other conditioning nodes** go between the node's `positive` and the KSampler as well.
 
@@ -107,7 +106,7 @@ Keep the scene `aligned` so its layout and lighting carry over. For the person, 
 
 *Same scene, prompt, seed and sampler in all four; `image` stays aligned at 1.0. Only `image_b`'s position, boost and mask change.*
 
-With `beside`, use an output width that is a multiple of 16 (for example 832 × 1264). Other widths get a streak of noise along the right edge ([krea2edit#35](https://github.com/lbouaraba/comfyui-krea2edit/issues/35)).
+With `beside`, use an output width that is a multiple of 16 (for example 832 × 1264). Other widths get a streak of noise along the right edge, a known bug.
 
 ## Recipes
 
@@ -149,6 +148,6 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 
 GPL-3.0, see [LICENSE](LICENSE). Versions up to 0.2.1 were Apache-2.0.
 
-`engine.py` is derived from [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba (commit 13ef60f, Apache-2.0, see [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)), whose edit forward is adapted from ComfyUI's Krea 2 model (GPL-3.0). The Rebalance weights are from [ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance) by nova452 (Apache-2.0).
+`engine.py` is derived from [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba (commit 13ef60f, Apache-2.0, see [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)), whose edit forward is adapted from ComfyUI's Krea 2 model (GPL-3.0). The Rebalance weights are from [Rebalance-Pack](https://github.com/nova452/Rebalance-Pack) by nova452 (Apache-2.0).
 
-This pack contains no model weights. Krea 2 and the edit LoRAs have their own licenses; check them before commercial use.
+This pack contains no model weights. The Identity Edit V2 and General Edit V2 LoRAs are free for personal and non-commercial use; commercial use, including selling their outputs, needs a license from their author ([details](https://huggingface.co/conradlocke/krea2-identity-edit)). Krea 2 itself, and the earlier edit LoRAs, are under the Krea 2 Community License.

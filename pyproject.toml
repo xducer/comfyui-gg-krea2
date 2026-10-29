@@ -1,7 +1,7 @@
 [project]
 name = "comfyui-gg-krea2"
 version = "0.3.0"
-description = "Node that turns zero, one or two reference images into a ready model and conditioning for KSampler, for the Krea 2 Edit LoRAs (V2, and the Identity Edit V1.2 LoRA). Includes the krea2edit edit engine, so comfyui-krea2edit isn't needed."
+description = "Krea 2 image editing for ComfyUI. Prepare grounded prompts and model conditioning for text-to-image, single-image editing, and two-reference scene and identity editing."
 readme = "README.md"
 license = { file = "LICENSE" }
 dependencies = []
