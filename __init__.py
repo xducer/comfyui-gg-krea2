@@ -114,3 +114,5 @@ class Krea2EditPrep:
 
 NODE_CLASS_MAPPINGS = {"Krea2EditPrep": Krea2EditPrep}
 NODE_DISPLAY_NAME_MAPPINGS = {"Krea2EditPrep": "Krea2 Edit Prep (gg)"}
+# web/docs/Krea2EditPrep.md is the node help page in the ComfyUI frontend.
+WEB_DIRECTORY = "./web"

@@ -32,6 +32,10 @@ git clone https://github.com/xducer/comfyui-gg-krea2.git
 
 Restart ComfyUI. The node is under **krea2 → gg** as **Krea2 Edit Prep (gg)**.
 
+## Quick reference
+
+The node has a built-in quick reference: select it and click the info button in the toolbar above it, or open it from the node library. It covers six common setups (which image goes where, which settings), one line per control, and what the V1.2 and V2 edit LoRAs do differently. This README has the details and examples.
+
 ## Wiring
 
 ![A ComfyUI workflow: a LoRA loader with the Identity Edit V2 and General Edit V2 LoRAs at 0.5 each feeds the model into Krea2 Edit Prep, along with two Load Image nodes (scene and person), an Empty Latent Image, CLIP, VAE and prompt; rebalance is on at 0.7. Its model, positive and negative go to a KSampler, which also takes the same latent, then VAE Decode and Preview Image.](assets/readme/wiring.png)
@@ -175,9 +179,10 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 - New `image_use` and `image_b_use`: send an image to the grounding only, the source only, or both. One image can carry an outfit or scene by meaning while the other carries a face.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16.
 - The node moved to **krea2 → gg** in the node menu. Saved workflows are unaffected.
+- A built-in quick reference in the node's help panel.
 
 **0.3.0**
-- comfyui-krea2edit is no longer needed: its edit engine is included. Saved workflows keep working.
+- No other node pack needed: the edit engine is included. Saved workflows keep working.
 - License changed to GPL-3.0.
 
 Earlier versions: see [CHANGELOG.md](CHANGELOG.md).
