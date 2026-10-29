@@ -12,3 +12,4 @@ Repository = "https://github.com/xducer/comfyui-gg-krea2"
 [tool.comfy]
 PublisherId = "xducer"
 DisplayName = "GG Krea2"
+Icon = "https://raw.githubusercontent.com/xducer/comfyui-gg-krea2/main/assets/icon.png"
