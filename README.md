@@ -106,6 +106,20 @@ Keep the scene `aligned` so its layout and lighting carry over. For the person, 
 
 *Same scene, prompt, seed and sampler in all four; `image` stays aligned at 1.0. Only `image_b`'s position, boost and mask change.*
 
+## Grounding and source
+
+Each image reaches the model in two ways; `image_use` and `image_b_use` choose which.
+
+| Use | What it carries |
+| --- | --- |
+| grounding + source (default) | Both. |
+| grounding only | The text encoder sees the image: objects, outfits, scenes and styles, by meaning. Its layout isn't copied, and the image adds no source tokens, so it is also faster. |
+| source only | Its pixels go into the model: a person's face carries strongly, and with `aligned` its layout and background too. The prompt isn't grounded on it. |
+
+Boost, mask and position apply only to images used as source. If no image is used as source, the model gets no source patch.
+
+A face photo used as source only can bring its background along; `beside` (the `image_b` default) stops that.
+
 ## Recipes
 
 **Put the person from one photo into a scene** (Identity Edit V2)
@@ -118,6 +132,13 @@ Keep the scene `aligned` so its layout and lighting carry over. For the person, 
 3. Prompt: *Give the man in the first image the face of the man in the second image. Keep his pose, clothing and the background unchanged.*
 
 The LoRA restages a person; it is not a pixel-exact face swap. The hair stays from the first image unless the prompt asks for it. A higher `image_b_boost` with a face mask changes little.
+
+**Combine an outfit, a scene and a face**
+1. Stitch the outfit photo and the scene photo side by side (Image Stitch node) into `image`, with `image_use` on **grounding only**.
+2. `image_b` = the face photo, with `image_b_use` on **source only** and its position on `beside`.
+3. Prompt what should happen, e.g. *a lady sitting on the sofa holding a coffee cup*.
+
+The scene is restaged freely. To keep the scene photo's layout instead, put the scene alone in `image` and stitch the outfit and face photos into `image_b`, both with default settings. With the Identity Edit V1.2 LoRA the face from a source-only image is weaker; **grounding + source** for the face helps the likeness but also brings that photo's clothes.
 
 **Edit one picture** (General Edit V2)
 Connect only `image` and describe the edit (*change his shirt to a black suit*). At the default boost the face, pose and background usually stay as they are.
@@ -145,6 +166,7 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 ## What's new
 
 **0.3.1 (unreleased)**
+- New `image_use` and `image_b_use`: send an image to the grounding only, the source only, or both. One image can carry an outfit or scene by meaning while the other carries a face.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16.
 - The node moved to **krea2 → gg** in the node menu. Saved workflows are unaffected.
 

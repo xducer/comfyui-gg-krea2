@@ -2,6 +2,7 @@
 
 ## Unreleased (0.3.1)
 
+- New `image_use` and `image_b_use` (default **grounding + source**, as before): send an image to the grounding only (objects, outfits, scenes by meaning, layout free, no source tokens) or the source only (pixels, e.g. a face). See Grounding and source in the README.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16. The engine now pads like ComfyUI's native Krea 2 model ([krea2edit#35](https://github.com/lbouaraba/comfyui-krea2edit/issues/35)).
 - The node moved from **krea2edit → gg** to **krea2 → gg** in the node menu. Saved workflows are unaffected.
 
