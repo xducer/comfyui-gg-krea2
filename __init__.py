@@ -1,8 +1,8 @@
-import inspect
-
 import torch
 
 import nodes
+
+from . import engine
 
 FIT_MODES = ["fit", "crop (legacy)"]
 NEGATIVE_MODES = ["zero (CFG 1)", "grounded (CFG > 1)"]
@@ -19,14 +19,6 @@ def rebalance_conditioning(conditioning, multiplier):
         gains = torch.tensor(REBALANCE_WEIGHTS, dtype=cond.dtype, device=cond.device) * multiplier
         out.append([(cond.unflatten(-1, (len(REBALANCE_WEIGHTS), -1)) * gains[:, None]).flatten(-2), extras.copy()])
     return out
-
-
-def krea2edit_node(name):
-    node = nodes.NODE_CLASS_MAPPINGS.get(name)
-    if node is None:
-        raise RuntimeError(f"Krea2 Edit Prep needs the comfyui-krea2edit pack ({name} is not installed). Install "
-                           "version 2.0.0 or newer with git clone from https://github.com/lbouaraba/comfyui-krea2edit")
-    return node()
 
 
 class Krea2EditPrep:
@@ -73,24 +65,23 @@ class Krea2EditPrep:
     CATEGORY = "krea2edit/gg"
     DESCRIPTION = ("Prepares model and conditioning for KSampler from zero, one or two reference images: "
                    "no image = text-to-image without the source patch, one image = single-reference edit, "
-                   "two = scene + subject. A boost of 0 leaves that image out. Needs comfyui-krea2edit 2.0.0 or newer.")
+                   "two = scene + subject. A boost of 0 leaves that image out.")
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,
              negative, image_position, image_b_position,
              image=None, image_b=None, image_mask=None, image_b_mask=None, rebalance=False, rebalance_multiplier=1.0):
-        # A boost of 0 leaves the image out. The Krea2 Edit nodes ignore the second slot without
-        # the first, so a lone image moves up.
+        # A boost of 0 leaves the image out. The engine reads the second image only together
+        # with the first, so a lone image moves up.
         refs = [(ref, boost, mask, position) for ref, boost, mask, position in
                 ((image, image_boost, image_mask, image_position), (image_b, image_b_boost, image_b_mask, image_b_position))
                 if ref is not None and boost > 0]
         (first, first_boost, _, _), (second, second_boost, _, _) = (refs + [(None, 1.0, None, None)] * 2)[:2]
 
-        encoder = krea2edit_node("Krea2EditGroundedEncode")
-        positive = encoder.encode(clip, prompt, image=first, image_b=second, grounding_px=grounding_px)[0]
+        positive = engine.grounded_encode(clip, prompt, first, second, grounding_px)
         if rebalance:
             positive = rebalance_conditioning(positive, rebalance_multiplier)
         if negative == NEGATIVE_MODES[1]:
-            negative = encoder.encode(clip, "", image=first, image_b=second, grounding_px=grounding_px)[0]
+            negative = engine.grounded_encode(clip, "", first, second, grounding_px)
             if rebalance:
                 negative = rebalance_conditioning(negative, rebalance_multiplier)
         else:
@@ -100,25 +91,15 @@ class Krea2EditPrep:
         if first is None:
             return (model, positive, negative)
 
-        # The patch's ref_boost and ref_position apply to the last reference, the _a inputs to the first of two.
+        # The engine's ref_boost and ref_position apply to the last reference, the _a ones to the first of two.
         ref_boost, ref_boost_a = (second_boost, first_boost) if second is not None else (first_boost, 1.0)
-        # The patch masks only the last reference's boost. Load Image's MASK is empty when nothing
+        # The engine masks only the last reference's boost. Load Image's MASK is empty when nothing
         # is painted, which would cancel the boost, so an empty mask means the whole image.
         mask = refs[-1][2]
         if mask is not None and not mask.any():
             mask = None
-        # The image path replaces source_latent; one batch item keeps its normalization from failing on batches.
-        source = {"samples": latent["samples"][:1]}
-        patch = krea2edit_node("Krea2EditModelPatch")
-        position, position_a = refs[-1][3], refs[0][3]
-        # Versions before 2.0.0 accept and drop unknown inputs, so the positions would be silently ignored.
-        if (position, position_a) != (POSITIONS[0], POSITIONS[0]) and "ref_position" not in inspect.signature(patch.patch).parameters:
-            raise RuntimeError("Krea2 Edit Prep's position settings need comfyui-krea2edit 2.0.0 or newer. Update it with "
-                               "git pull (ComfyUI Manager still installs 1.2.3), or set both positions to aligned.")
-        model = patch.patch(
-            model, source, vae=vae, source_image=first, source_image_b=second, target_latent=latent,
-            fit_mode=fit_mode, ref_boost=ref_boost, ref_boost_a=ref_boost_a, ref_boost_mask=mask,
-            ref_position=position, ref_position_a=position_a)[0]
+        model = engine.patch_model(model, vae, latent, first, second, fit_mode, ref_boost, ref_boost_a, mask,
+                                   refs[-1][3], refs[0][3])
         return (model, positive, negative)
 
 

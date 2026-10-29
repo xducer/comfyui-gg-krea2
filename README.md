@@ -4,9 +4,9 @@
 
 # GG Krea2
 
-*An add-on node for [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba. Not part of that pack; install it first.*
+*Includes the edit engine of [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba, so that pack isn't needed.*
 
-**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It runs the Krea2 Edit nodes (grounded encode and source patch) internally, so you don't place them yourself.
+**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It does the grounded encode and source patch of the Krea2 Edit nodes internally, so you don't place them yourself.
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
 
@@ -14,14 +14,13 @@
 
 ## Requirements
 
-- [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) 2.0.0 or newer (older versions don't support the position settings). Install it with `git clone`: the Comfy Registry, which ComfyUI Manager installs from, still has 1.2.3.
 - Krea 2 with the edit LoRAs ([weights](https://huggingface.co/conradlocke/krea2-identity-edit)) applied **before** this node, plus any other LoRAs you use:
   - `krea2_identity_edit_v2` to put a person from one photo into a scene, pose or outfit;
   - `krea2_general_edit_v2` for instruction edits (remove, recolour, relight, backgrounds, objects, text);
   - `krea2_identity_edit_v1_2`, the older Identity Edit V1.2 LoRA, also works, for edits and text-to-image.
 
   Both V2 LoRAs at 1.0 break the image; krea2edit suggests about 0.6 each when combining them. We use 0.5 each.
-- The Krea 2 text encoder (Qwen3-VL) loaded with type `krea2`, as the Krea2 Edit nodes require.
+- The Krea 2 text encoder (Qwen3-VL, with its vision tower) loaded with type `krea2`.
 
 ## Install
 
@@ -150,6 +149,6 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 
 GPL-3.0, see [LICENSE](LICENSE). Versions up to 0.2.1 were Apache-2.0.
 
-The Rebalance weights are from [ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance) by nova452 (Apache-2.0, see [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)).
+`engine.py` is derived from [comfyui-krea2edit](https://github.com/lbouaraba/comfyui-krea2edit) by lbouaraba (commit 13ef60f, Apache-2.0, see [LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt)), whose edit forward is adapted from ComfyUI's Krea 2 model (GPL-3.0). The Rebalance weights are from [ComfyUI-ConditioningKrea2Rebalance](https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance) by nova452 (Apache-2.0).
 
 This pack contains no model weights. Krea 2 and the edit LoRAs have their own licenses; check them before commercial use.
