@@ -7,7 +7,8 @@ SingleStreamDiT._forward (GPL-3.0) with source tokens prepended.
 Modified for GG Krea2: the node classes became the functions patch_model and grounded_encode,
 and code that Krea2 Edit Prep's call can't reach was removed (the latent source path, the
 latent-only and missing-target_latent branches, the system prompt override, debug prints).
-Everything that remains keeps upstream's names and math, so upstream fixes can be diffed in.
+The target is padded circular instead of replicate (krea2edit#35). Everything else keeps
+upstream's names and math, so upstream fixes can be diffed in.
 
 ComfyUI's native Krea2 `_forward` is text-to-image only: it builds the sequence
 `[text | target]`. The edit LoRAs (trained in ai-toolkit) need the *appearance path*:
@@ -219,7 +220,9 @@ def krea2_edit_forward(m, x, timesteps, context, src_latent, transformer_options
     x = _to_4d(x)
     bs, c, H_orig, W_orig = x.shape
 
-    x = comfy.ldm.common_dit.pad_to_patch_size(x, (patch, patch), padding_mode="replicate")
+    # Circular like ComfyUI's native forward: upstream's replicate padding streaks the last 8px
+    # of sizes that aren't a multiple of 16 (krea2edit#35).
+    x = comfy.ldm.common_dit.pad_to_patch_size(x, (patch, patch))
     H, W = x.shape[-2], x.shape[-1]
     h_, w_ = H // patch, W // patch
 

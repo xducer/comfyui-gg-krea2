@@ -106,8 +106,6 @@ Keep the scene `aligned` so its layout and lighting carry over. For the person, 
 
 *Same scene, prompt, seed and sampler in all four; `image` stays aligned at 1.0. Only `image_b`'s position, boost and mask change.*
 
-With `beside`, use an output width that is a multiple of 16 (for example 832 × 1264). Other widths get a streak of noise along the right edge, a known bug.
-
 ## Recipes
 
 **Put the person from one photo into a scene** (Identity Edit V2)
