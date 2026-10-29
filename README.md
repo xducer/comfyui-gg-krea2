@@ -4,7 +4,7 @@
 
 # GG Krea2
 
-**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2 with a Krea 2 Edit LoRA. It grounds the prompt on the images and adds them to the model as references itself, so no other edit nodes are needed.
+**Krea2 Edit Prep (gg)** turns zero, one or two reference images into a ready `model`, `positive` and `negative` for a KSampler, for Krea 2. It grounds the prompt on the images and adds them to the model as references itself, so no other edit nodes are needed.
 
 ![The same scene and person through each route: both images put the person on the chair under the scene's spotlight; image only keeps the scene with a generic person; image_b only keeps the person in a plain studio; no image gives a generic text-to-image result.](assets/readme/routes.jpg)
 
