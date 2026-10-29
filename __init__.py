@@ -7,6 +7,7 @@ from . import engine
 FIT_MODES = ["fit", "crop (legacy)"]
 NEGATIVE_MODES = ["zero (CFG 1)", "grounded (CFG > 1)"]
 POSITIONS = ["aligned (trained)", "beside (right of target)", "bag of features"]
+USES = ["grounding + source", "grounding only", "source only"]
 # Default per-layer weights of Conditioning Krea2 Rebalance by nova452
 # (https://github.com/nova452/ComfyUI-ConditioningKrea2Rebalance, Apache-2.0).
 REBALANCE_WEIGHTS = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 2.5, 5.0, 1.1, 4.0, 1.0]
@@ -56,6 +57,10 @@ class Krea2EditPrep:
                                           "tooltip": "applies Conditioning Krea2 Rebalance's default per-layer weights to positive and a grounded negative"}),
                 "rebalance_multiplier": ("FLOAT", {"default": 1.0, "min": 0.0, "max": 10.0, "step": 0.05,
                                                    "tooltip": "scales every layer; about 0.7-0.8 with the V2 LoRAs, 1.0 with the V1.2 LoRA or no edit LoRA"}),
+                "image_use": (USES, {"default": USES[0],
+                                     "tooltip": "grounding = the text encoder sees the image (objects, outfit, scene, by meaning); "
+                                                "source = its pixels go into the model (faces, layout when aligned)"}),
+                "image_b_use": (USES, {"default": USES[0], "tooltip": "the same choice for image_b"}),
             },
         }
 
@@ -69,19 +74,23 @@ class Krea2EditPrep:
 
     def prep(self, model, clip, vae, latent, prompt, grounding_px, fit_mode, image_boost, image_b_boost,
              negative, image_position, image_b_position,
-             image=None, image_b=None, image_mask=None, image_b_mask=None, rebalance=False, rebalance_multiplier=1.0):
+             image=None, image_b=None, image_mask=None, image_b_mask=None, rebalance=False, rebalance_multiplier=1.0,
+             image_use=USES[0], image_b_use=USES[0]):
         # A boost of 0 leaves the image out. The engine reads the second image only together
-        # with the first, so a lone image moves up.
-        refs = [(ref, boost, mask, position) for ref, boost, mask, position in
-                ((image, image_boost, image_mask, image_position), (image_b, image_b_boost, image_b_mask, image_b_position))
+        # with the first, so a lone image moves up, in the grounding and in the source.
+        refs = [(ref, boost, mask, position, use) for ref, boost, mask, position, use in
+                ((image, image_boost, image_mask, image_position, image_use),
+                 (image_b, image_b_boost, image_b_mask, image_b_position, image_b_use))
                 if ref is not None and boost > 0]
-        (first, first_boost, _, _), (second, second_boost, _, _) = (refs + [(None, 1.0, None, None)] * 2)[:2]
+        grounded = [ref[0] for ref in refs if ref[4] != USES[2]] + [None, None]
+        refs = [ref for ref in refs if ref[4] != USES[1]]
+        (first, first_boost, *_), (second, second_boost, *_) = (refs + [(None, 1.0, None, None, None)] * 2)[:2]
 
-        positive = engine.grounded_encode(clip, prompt, first, second, grounding_px)
+        positive = engine.grounded_encode(clip, prompt, grounded[0], grounded[1], grounding_px)
         if rebalance:
             positive = rebalance_conditioning(positive, rebalance_multiplier)
         if negative == NEGATIVE_MODES[1]:
-            negative = engine.grounded_encode(clip, "", first, second, grounding_px)
+            negative = engine.grounded_encode(clip, "", grounded[0], grounded[1], grounding_px)
             if rebalance:
                 negative = rebalance_conditioning(negative, rebalance_multiplier)
         else:
