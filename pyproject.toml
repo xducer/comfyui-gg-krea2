@@ -1,6 +1,6 @@
 [project]
 name = "comfyui-gg-krea2"
-version = "0.3.0"
+version = "0.3.1"
 description = "Krea 2 image editing for ComfyUI. Prepare grounded prompts and model conditioning for text-to-image, single-image editing, and two-reference scene and identity editing."
 readme = "README.md"
 license = { file = "LICENSE" }

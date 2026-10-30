@@ -179,7 +179,7 @@ Disconnect both images, mute or bypass their Load Image nodes, or set both boost
 
 ## What's new
 
-**0.3.1 (unreleased)**
+**0.3.1**
 - New `image_use` and `image_b_use`: use an image for its grounding only, its pixels only, or both. One image can carry an outfit or scene by meaning while the other carries a face.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16.
 - The node moved to **krea2 → gg** in the node menu. Saved workflows are unaffected.

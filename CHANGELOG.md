@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased (0.3.1)
+## 0.3.1 (2026-10-30)
 
 - New `image_use` and `image_b_use` (default **grounding + pixels**, as before): use an image for its grounding only (objects, outfits, scenes by meaning, layout free, faster) or its pixels only (e.g. a face). See Grounding and pixels in the README.
 - Fixed: streaks along the right or bottom edge at output sizes that aren't a multiple of 16. The engine now pads like ComfyUI's native Krea 2 model ([krea2edit#35](https://github.com/lbouaraba/comfyui-krea2edit/issues/35)).
