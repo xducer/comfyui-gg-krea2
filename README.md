@@ -66,7 +66,7 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 | one image (the other missing or at boost 0) | Single-image edit. A lone `image_b` moves into the first slot. |
 | both | Scene + subject edit. |
 
-With two images, "the first image" in the prompt is `image` and "the second image" is `image_b` (as long as both are grounded, see [Grounding and pixels](#grounding-and-pixels)). With one image, whichever slot it is in, it is the only image the model sees, so call it "the image".
+With two images, "the first image" in the prompt is `image` and "the second image" is `image_b` (as long as both are grounded, see [Grounding and pixels](#grounding-and-pixels)). When only one image is grounded, call it "the image" in the prompt, whichever slot it is in.
 
 ## Text-to-image in an edit workflow
 

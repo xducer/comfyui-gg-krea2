@@ -18,7 +18,7 @@ Turns zero, one or two images into `model`, `positive` and `negative` for a KSam
 - **boost**: 1.0 neutral, above 1 copies that image more closely, below 1 more loosely, 0 leaves it out.
 - **mask**: limits the boost to the painted area; not an inpainting mask. Only the mask of the last image whose pixels are used applies (with defaults and two images: `image_b_mask`).
 - **position**: `aligned` keeps the image's layout (scenes); `beside` keeps a likeness but restages it (people); `bag of features` is experimental and tends to paste face photos in.
-- **use**: *grounding* lets the text encoder read the image (objects, outfits, scenes; layout free, faster); *pixels* puts the image itself in the model (faces; the layout when aligned). *Pixels only* needs the V2 LoRAs. "First/second image" in the prompt count only grounded images. A boost of 0 leaves an image out of both.
+- **use**: *grounding* lets the text encoder read the image (objects, outfits, scenes; layout free, faster); *pixels* puts the image itself in the model (faces; the layout when aligned). *Pixels only* works best with the V2 LoRAs; with V1.2 it is usually weaker. "First/second image" in the prompt count only grounded images. A boost of 0 leaves an image out of both.
 - **grounding_px**: lower follows the prompt more, higher keeps identity; 1024 suits people.
 - **negative**: *zero* at CFG 1 (Turbo); *grounded* at CFG above 1 (Raw). Raw at CFG ~3 follows the prompt more closely when a reference's pose competes with it.
 - **rebalance**: per-layer weights; multiplier about 0.7–0.8 with the V2 LoRAs, 1.0 with V1.2 or no edit LoRA.
