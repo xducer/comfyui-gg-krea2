@@ -66,7 +66,7 @@ Connect the same `latent` to the KSampler. Any batch size works. Seed, steps and
 | one image (the other missing or at boost 0) | Single-image edit. A lone `image_b` moves into the first slot. |
 | both | Scene + subject edit. |
 
-With two images, "the first image" in the prompt is `image` and "the second image" is `image_b`. With one image, whichever slot it is in, it is the only image the model sees, so call it "the image".
+With two images, "the first image" in the prompt is `image` and "the second image" is `image_b` (as long as both are grounded, see [Grounding and pixels](#grounding-and-pixels)). With one image, whichever slot it is in, it is the only image the model sees, so call it "the image".
 
 ## Text-to-image in an edit workflow
 
@@ -91,7 +91,7 @@ The edit LoRAs aren't needed without images, and they change the look. The V2 pa
 
 - Paint it in the mask editor of the picture's Load Image node (right-click → Open in MaskEditor) and connect that node's `MASK`.
 - The boost must differ from 1.0, or the mask has no effect.
-- With both images, only `image_b_mask` applies; the scene can't be masked. With one image, that image's own mask applies.
+- Only the mask of the last image whose pixels are used applies: with both images on their defaults that is `image_b_mask`, so the scene can't be masked; with one image, that image's own mask.
 - An empty mask (nothing painted) means the whole image, so leaving `MASK` connected is safe, unless the picture has transparency: Load Image then makes the transparent area the mask.
 
 At 1.0 the identity LoRA usually reproduces the face well already. When you need a stronger boost on an `aligned` image, a face mask keeps it on the face, so the rest of the photo isn't copied too literally (see the board below).
@@ -122,7 +122,9 @@ Each image reaches the model in two ways; `image_use` and `image_b_use` choose w
 | grounding only | The text encoder sees the image: objects, outfits, scenes and styles, by meaning. Its layout isn't copied, and the image itself doesn't go into the model, so it is also faster. |
 | pixels only | The image itself goes into the model, but the prompt isn't grounded on it. With the V2 LoRAs a face carries without the photo's clothes and background, and a scene keeps its layout. With the Identity Edit V1.2 LoRA it is weak; use **grounding + pixels** there. |
 
-Boost, mask and position apply only to images whose pixels are used. If no image's pixels are used, the model is left unpatched.
+A boost of 0 still leaves the image out entirely, grounding included. Other boost values, masks and positions apply only to images whose pixels are used. If no image's pixels are used, the model is left unpatched.
+
+When only some images are grounded, "the first image" and "the second image" in the prompt count only the grounded ones, in slot order. A pixels-only image isn't visible to the text encoder, so the prompt can't refer to it by number.
 
 An `aligned` face photo whose pixels are used brings its framing and background along; `beside` (the `image_b` default) stops that.
 
